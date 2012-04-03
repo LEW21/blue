@@ -1,11 +1,5 @@
 #!/usr/bin/env python
-"""Simple server that listens on port 6000 and echos back every input to the client.
 
-Connect to it with:
-  telnet localhost 6000
-
-Terminate the connection by terminating telnet (typically Ctrl-] and then 'quit').
-"""
 from gevent.server import StreamServer
 from jsonrmc import handle
 from repository import Directory, Database
