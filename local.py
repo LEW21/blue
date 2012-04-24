@@ -13,7 +13,7 @@ class LocalProxy(local):
 		return getattr(obj, name)
 
 	def __getitem__(self, name):
-		return getattr(self, '__getitem__')(name)
+		return self.__getitem__(name)
 
 	def __setitem__(self, name, value):
-		return getattr(self, '__setitem__')(name, value)
+		return self.__setitem__(name, value)
