@@ -2,11 +2,11 @@
 
 from gevent.server import StreamServer
 from jsonrmc import handle
-from repository import Directory, Database
 from argparse import ArgumentParser
 from configparser import ConfigParser
 import os
 from koryto import tree
+from repository import Directory, Database
 
 def connection(socket, address):
 	print ('New connection from %s:%s' % address)
