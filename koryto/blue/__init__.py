@@ -1,2 +1,1 @@
-from repository import DB
-from api import Object, Real, Ideal
+from koryto.blue.api import Object, Real, Ideal

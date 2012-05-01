@@ -1,3 +1,4 @@
+from koryto.blue.repository import ideals, reals
 
 class property(property):
 	def __init__(self, fget=None, fset=None, fdel=None, fvalid=None, doc=None):
@@ -29,10 +30,7 @@ class Object(object):
 
 	@property
 	def path(self):
-		if self.parent:
-			return os.path.join(self.parent.path, self.name)
-		else:
-			return self.name
+		return (self.parent.path + "." if self.parent else "") + self.name
 
 	@lazy
 	def real(self):
@@ -52,32 +50,34 @@ class Real(object):
 	@staticmethod
 	def property(name, doc=None):
 		def getter(self):
-			return getattr(self.real, name)
-		def setter(self):
-			return setattr(self.real, name)
+			return self.real[name]
+		def setter(self, value):
+			self.real[name] = value
 		def deleter(self):
-			return delattr(self.real, name)
+			del self.real[name]
 
 		return property(fget=getter, fset=setter, fdel=deleter, doc=doc)
 
 	def __init__(self, path):
-		self.__dict__["_changed"] = False
+		self._changed = False
+		self.path = path
+		self.data = reals[path]
 		pass
 
-	def __getattr__(self, name):
-		pass
+	def __getitem__(self, name):
+		return self.data[name]
 
-	def __setattr__(self, name, value):
-		self.__dict__["_changed"] = True
-		pass
+	def __setitem__(self, name, value):
+		self._changed = True
+		self.data[name] = value
 
-	def __delattr__(self, name):
-		self.__dict__["_changed"] = True
-		pass
+	def __delitem__(self, name):
+		self._changed = True
+		del self.data[name]
 
 	def __del__(self):
 		if self._changed:
-			pass
+			reals[self.path] = self.data
 
 class Ideal(object):
 	__metaclass__ = SoMeta
@@ -85,7 +85,7 @@ class Ideal(object):
 	@staticmethod
 	def property(name, doc=None):
 		def getter(self):
-			return getattr(self.ideal, name)
+			return self.ideal[name]
 		def setter(self):
 			raise AttributeError
 		def deleter(self):
@@ -94,10 +94,11 @@ class Ideal(object):
 		return property(fget=getter, fset=setter, fdel=deleter, doc=doc)
 
 	def __init__(self, path):
-		pass
+		self.path = path
+		self.data = ideals[path]
 
 	def __getattr__(self, name):
-		pass
+		return self.data[name]
 
 	def __setattr__(self, name, value):
 		raise AttributeError, "can't set attribute"
