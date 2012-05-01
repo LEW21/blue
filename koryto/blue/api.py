@@ -42,7 +42,13 @@ class Object(object):
 	def ideal(self):
 		return Ideal(self.path)
 
+class SoMeta(type):
+	def __getattr__(cls, key):
+		return lambda *kwargs: cls.property(key, *kwargs)
+
 class Real(object):
+	__metaclass__ = SoMeta
+
 	@staticmethod
 	def property(name, doc=None):
 		def getter(self):
@@ -74,6 +80,8 @@ class Real(object):
 			pass
 
 class Ideal(object):
+	__metaclass__ = SoMeta
+
 	@staticmethod
 	def property(name, doc=None):
 		def getter(self):
