@@ -20,13 +20,29 @@ class Directory(object):
 		else:
 			return Directory(path, self.metabases)
 
-def load(configdir = None):
-	if configdir is None:
-		configdir = sys.prefix + "/etc/koryto/blue"
+def load(configroot = None):
+	if configroot is None:
+		configroot = "{prefix}/etc/koryto/blue"
 
-	configfile = os.path.join(configdir, 'blue.cfg')
+	configroot = configroot.format(prefix=sys.prefix)
+
 	config = ConfigParser()
-	config.read_file(open(configfile), configfile)
+
+	config.read_dict({"blue": {
+		"root": "{prefix}/srv/koryto/blue",
+		"ideals": "{prefix}/srv/koryto/ideals",
+	}})
+
+	config.read(os.path.join(configroot, 'blue.cfg'))
+
 	blueconfig = config[u"blue"]
 
-	return Directory(blueconfig[u"root"], metabases([x.strip() for x in blueconfig[u"types"].split(',')], configdir, blueconfig[u"ideals"]))
+	realsroot = blueconfig[u"root"].format(prefix=sys.prefix)
+	idealsroot = blueconfig[u"ideals"].format(prefix=sys.prefix)
+
+	try:
+		types = [x.strip() for x in blueconfig[u"types"].split(',')]
+	except KeyError:
+		types = os.listdir(idealsroot)
+
+	return Directory(realsroot, metabases(types, configroot, idealsroot))

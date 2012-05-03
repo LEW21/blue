@@ -17,7 +17,7 @@ class Data(object):
 			with open(path) as file:
 				return json.load(file)
 		except IOError:
-			raise AttributeError
+			raise AttributeError, "Missing file: " + path
 
 	def __setitem__(self, item, data):
 		path = os.path.join(self.root, *item.split(".")) + ".json"

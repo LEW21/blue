@@ -3,7 +3,6 @@
 from gevent.server import StreamServer
 from jsonrmc import handle
 from argparse import ArgumentParser
-import sys
 from koryto.blue.repository import load
 
 def connection(socket, address):
@@ -18,7 +17,7 @@ if __name__ == '__main__':
 	parser = ArgumentParser(description='Blue Server.')
 	parser.add_argument('--host', '-H', default='0.0.0.0')
 	parser.add_argument('--port', '-p', default=6000, type=int)
-	parser.add_argument('--config', '-c', default=sys.prefix + "/etc/koryto/blue")
+	parser.add_argument('--config', '-c', default="{prefix}/etc/koryto/blue")
 	args = parser.parse_args()
 
 	global root
