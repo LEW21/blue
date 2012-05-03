@@ -12,14 +12,22 @@ class Data(object):
 		self.root = root
 
 	def __getitem__(self, item):
+		path = os.path.join(self.root, *item.split(".")) + ".json"
 		try:
-			with open(os.path.join(self.root, *item.split(".")) + ".json") as file:
+			with open(path) as file:
 				return json.load(file)
 		except IOError:
 			raise AttributeError
 
 	def __setitem__(self, item, data):
-		with open(os.path.join(self.root, *item.split(".")) + ".json") as file:
+		path = os.path.join(self.root, *item.split(".")) + ".json"
+
+		try:
+			os.makedirs(os.path.dirname(path))
+		except OSError:
+			pass
+
+		with open(path, "w") as file:
 			json.dump(data, file)
 
 class Ideals(Data):
