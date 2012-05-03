@@ -32,15 +32,25 @@ class Reals(Data):
 def Tree(path):
 	return koryto.tree.load(path)
 
-class MetaBase(object):
-	def __init__(self, type, configroot, idealsroot):
-		self.tree = Tree(os.path.join(configroot, type))
-		self.ideals = Ideals(os.path.join(idealsroot, type))
+def Metabase(type, configroot, idealsroot):
+	class Database(object):
+		tree = Tree(os.path.join(configroot, type))
+		ideals = Ideals(os.path.join(idealsroot, type))
+
+		def __init__(self, path):
+			self.reals = Reals(path)
+
+		def activate(self):
+			local.set(tree, self.tree)
+			local.set(ideals, self.ideals)
+			local.set(reals, self.reals)
+
+	return Database
 
 def metabases(types, configroot, idealsroot):
 	metabases = {}
 	for type in types:
-		metabases[type] = MetaBase(type, configroot, idealsroot)
+		metabases[type] = Metabase(type, configroot, idealsroot)
 	return metabases
 
 def load(path, metabases):
@@ -48,13 +58,11 @@ def load(path, metabases):
 		with open(os.path.join(path, ".db")) as info:
 			type = info.readline().strip()
 
-		meta = metabases[type]
+		Database = metabases[type]
 	except BaseException as e:
 		print("Corrupted database: {path}".format(path=path))
 		raise e
 
-	local.set(tree, meta.tree)
-	local.set(ideals, meta.ideals)
-	local.set(reals, Reals(path))
-
-	return local.get(tree)
+	db = Database(path)
+	db.activate()
+	return db.tree
