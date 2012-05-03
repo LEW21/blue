@@ -1,4 +1,4 @@
-from koryto.blue.repository import ideals, reals
+from koryto.blue.database import ideals, reals
 import koryto.blue.constraints
 from inspect import getargspec
 
