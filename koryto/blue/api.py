@@ -59,12 +59,15 @@ class Real(object):
 	__metaclass__ = SoMeta
 
 	@staticmethod
-	def property(name, type, doc=None, *constraints, **stdConstraints):
+	def property(name, type, default=None, doc=None, *constraints, **stdConstraints):
 		for name in stdConstraints:
 			constraints += getattr(koryto.blue.constraints, name)(stdConstraints[name])
 
 		def getter(self):
-			return type(self.real[name])
+			try:
+				return type(self.real[name])
+			except KeyError:
+				return type(default)
 
 		def setter(self, value):
 			value = type(value)

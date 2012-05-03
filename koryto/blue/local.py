@@ -1,16 +1,11 @@
 from gevent.local import local
 
+def set(self, obj):
+	local.__setattr__(self, "obj", obj)
+
 class LocalProxy(local):
 	def __getattribute__(self, name):
-		try:
-			obj = local.__getattribute__(self, "obj")
-		except AttributeError:
-			if name == "set":
-				return lambda obj: local.__setattr__(self, "obj", obj)
-			else:
-				raise AttributeError
-
-		return getattr(obj, name)
+		return getattr(local.__getattribute__(self, "obj"), name)
 
 	def __getitem__(self, name):
 		return self.__getitem__(name)
