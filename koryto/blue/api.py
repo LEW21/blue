@@ -24,13 +24,8 @@ class lazy(object):
 		return value
 
 class Object(object):
-	def __init__(self, parent, name):
-		self.parent = parent
-		self.name = name
-
-	@property
-	def path(self):
-		return (self.parent.path + "." if self.parent else "") + self.name
+	def __init__(self, path):
+		self.path = path
 
 	@lazy
 	def real(self):
@@ -51,8 +46,10 @@ class Real(object):
 	def property(name, doc=None):
 		def getter(self):
 			return self.real[name]
+
 		def setter(self, value):
 			self.real[name] = value
+
 		def deleter(self):
 			del self.real[name]
 
@@ -61,8 +58,10 @@ class Real(object):
 	def __init__(self, path):
 		self._changed = False
 		self.path = path
-		self.data = reals[path]
-		pass
+		try:
+			self.data = reals[path]
+		except AttributeError:
+			self.data = {}
 
 	def __getitem__(self, name):
 		return self.data[name]
@@ -86,8 +85,10 @@ class Ideal(object):
 	def property(name, doc=None):
 		def getter(self):
 			return self.ideal[name]
+
 		def setter(self):
 			raise AttributeError
+
 		def deleter(self):
 			raise AttributeError
 
@@ -97,11 +98,11 @@ class Ideal(object):
 		self.path = path
 		self.data = ideals[path]
 
-	def __getattr__(self, name):
+	def __getitem__(self, name):
 		return self.data[name]
 
-	def __setattr__(self, name, value):
+	def __setitem__(self, name, value):
 		raise AttributeError, "can't set attribute"
 
-	def __delattr__(self, name):
+	def __delitem__(self, name):
 		raise AttributeError, "can't delete attribute"

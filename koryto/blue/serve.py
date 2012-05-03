@@ -7,7 +7,7 @@ from configparser import ConfigParser
 import os
 import sys
 from koryto import tree
-from koryto.blue.repository import Directory, Database, setupIdeals
+from koryto.blue.repository import Directory, Database
 
 def connection(socket, address):
 	print ('New connection from %s:%s' % address)
@@ -31,8 +31,6 @@ if __name__ == '__main__':
 
 	global root
 	root = Directory(config[u"blue"][u"root"])
-
-	setupIdeals(config["blue"]["ideals"])
 
 	for t in config[u"blue"][u"types"].split(','):
 		t = t.strip()

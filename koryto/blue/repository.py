@@ -1,5 +1,6 @@
 import os
 import local
+import json
 
 class Directory(object):
 	def __init__(self, path):
@@ -21,8 +22,11 @@ class Data(object):
 		self.root = root
 
 	def __getitem__(self, item):
-		with open(os.path.join(self.root, *item.split(".")) + ".json") as file:
-			return json.load(file)
+		try:
+			with open(os.path.join(self.root, *item.split(".")) + ".json") as file:
+				return json.load(file)
+		except IOError:
+			raise AttributeError
 
 	def __setitem__(self, item, data):
 		with open(os.path.join(self.root, *item.split(".")) + ".json") as file:
@@ -35,12 +39,8 @@ class Ideals(Data):
 class Reals(Data):
 	pass
 
-ideals = None
+ideals = local.LocalProxy()
 reals  = local.LocalProxy()
-
-def setupIdeals(path):
-	global ideals
-	ideals = Ideals(path)
 
 class Database(object):
 	types = {}
@@ -48,9 +48,10 @@ class Database(object):
 	@staticmethod
 	def open(path):
 		reals.set(Reals(path))
+		ideals.set(Ideals("/srv/koryto/ideals/player"))
 
 		try:
-			with DB[""].open("db") as info:
+			with open(os.path.join(path, ".db")) as info:
 				type = info.readline().strip()
 
 			return Database.types[type]

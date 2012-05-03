@@ -1,3 +1,4 @@
+import sys
 
 class Node(object):
 	def __init__(self, config, _vars):
@@ -5,10 +6,18 @@ class Node(object):
 		try:
 			module = sys.modules[module]
 		except KeyError:
-			module = __import__(module)
+			__import__(module)
+			module = sys.modules[module]
 		self._type = reduce(getattr, type.split("."), module)
 		self._vars = _vars
+		self._path = config["path"]
 
 	def __getattribute__(self, name):
-		obj = self._type(**self._vars)
+		if name[0] == '_':
+			return object.__getattribute__(self, name)
+	
+		path = self._path.format(**self._vars)
+
+		obj = self._type(path)
+
 		return getattr(obj, name)
