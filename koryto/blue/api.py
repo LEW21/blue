@@ -1,4 +1,6 @@
 from koryto.blue.repository import ideals, reals
+import koryto.blue.constraints
+from inspect import getargspec
 
 class property(property):
 	def __init__(self, fget=None, fset=None, fdel=None, fvalid=None, doc=None):
@@ -39,15 +41,34 @@ class SoMeta(type):
 	def __getattr__(cls, key):
 		return lambda *kwargs: cls.property(key, *kwargs)
 
+def validate(self, value, constraints):
+	for con in constraints:
+		args = getargspec(con).args
+
+		if not len(args):
+			res = con()
+		elif args[0] == "self":
+			res = lambda: con(self, value)
+		else:
+			res = lambda: con(self)
+
+		if not res:
+			raise ValueError
+
 class Real(object):
 	__metaclass__ = SoMeta
 
 	@staticmethod
-	def property(name, doc=None):
+	def property(name, type, doc=None, *constraints, **stdConstraints):
+		for name in stdConstraints:
+			constraints += getattr(koryto.blue.constraints, name)(stdConstraints[name])
+
 		def getter(self):
-			return self.real[name]
+			return type(self.real[name])
 
 		def setter(self, value):
+			value = type(value)
+			validate(self, value, constraints)
 			self.real[name] = value
 
 		def deleter(self):
@@ -82,9 +103,9 @@ class Ideal(object):
 	__metaclass__ = SoMeta
 
 	@staticmethod
-	def property(name, doc=None):
+	def property(name, type, doc=None):
 		def getter(self):
-			return self.ideal[name]
+			return type(self.ideal[name])
 
 		def setter(self):
 			raise AttributeError
