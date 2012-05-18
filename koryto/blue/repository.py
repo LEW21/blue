@@ -1,7 +1,6 @@
 import os
 import sys
 from configparser import ConfigParser
-from koryto import tree
 from database import load as loadDB, metabases
 
 class Directory(object):
@@ -33,7 +32,7 @@ def load(configroot = None):
 		"ideals": "{prefix}/srv/koryto/ideals",
 	}})
 
-	config.read(os.path.join(configroot, 'blue.cfg'))
+	config.read([os.path.join(configroot, 'blue.cfg')])
 
 	blueconfig = config[u"blue"]
 

@@ -27,15 +27,43 @@ class lazy(object):
 
 class Object(object):
 	def __init__(self, path):
-		self.path = path
+		self.__blue_path__ = path
+		self.__blue_children__ = {}
 
 	@lazy
 	def real(self):
-		return Real(self.path)
+		return Real(self.__blue_path__)
 
 	@lazy
 	def ideal(self):
-		return Ideal(self.path)
+		return Ideal(self.__blue_path__)
+
+	def __getitem__(self, name):
+		try:
+			return self.__blue_children__[name]
+		except KeyError:
+			try:
+				Item = self.__blue_meta_children__[name]
+			except (KeyError, AttributeError):
+				try:
+					Item = self.__blue_meta_children__["*"]
+				except (KeyError, AttributeError):
+					raise KeyError
+
+			self.__blue_children__[name] = Item(self.__blue_path__ + "." + name if self.__blue_path__ else name)
+			return self.__blue_children__[name]
+
+	def __getattr__(self, name):
+		try:
+			return self[name]
+		except KeyError:
+			try:
+				getattr(super(Object, self), name)
+			except AttributeError:
+				raise AttributeError("'{0}' object has no attribute '{1}'".format(self.__blue_path__, name))
+
+class Mixin(object):
+	pass
 
 class SoMeta(type):
 	def __getattr__(cls, key):
