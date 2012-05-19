@@ -10,15 +10,14 @@ def importClass(path):
 
 	return getattr(sys.modules[moduleName], className)
 
-def buildClass(config):
-	base = importClass(config["base"])
-	parents = [base]
+def buildClass(name, config = {}):
+	parents = [importClass("koryto.blue.api#Object")]
 
-	for name in config:
-		if name.startswith("mixin."):
-			parents.append(importClass(config[name]))
+	for opt in config:
+		if opt.startswith("mixin.") or opt == "base":
+			parents.append(importClass(config[opt]))
 
-	cls = type(base.__name__, tuple(parents), {})
+	cls = type(str(name), tuple(parents), {})
 	cls.__blue_meta_children__ = {}
 
 	return cls
@@ -29,14 +28,12 @@ def load(configdir):
 
 	sections = sorted(conf.sections())
 
-	default = {"base": "koryto.blue#Object"}
-
 	try:
 		root = conf["/"]
 	except KeyError:
-		root = default
+		root = {}
 
-	root = buildClass(root)
+	root = buildClass("", root)
 
 	for section in sections:
 		segments = section.split('/')
@@ -56,11 +53,11 @@ def load(configdir):
 			try:
 				parent = parent.__blue_meta_children__[segment]
 			except KeyError:
-				parent.__blue_meta_children__[segment] = buildClass(default)
+				parent.__blue_meta_children__[segment] = buildClass(segment)
 				parent = parent.__blue_meta_children__[segment]
 
-		name = segments[-1]
+		segment = segments[-1]
 
-		parent.__blue_meta_children__[name] = buildClass(conf[section])
+		parent.__blue_meta_children__[segment] = buildClass(segment, conf[section])
 
 	return root

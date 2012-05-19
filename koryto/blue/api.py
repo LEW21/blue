@@ -62,9 +62,6 @@ class Object(object):
 			except AttributeError:
 				raise AttributeError("'{0}' object has no attribute '{1}'".format(self.__blue_path__, name))
 
-class Mixin(object):
-	pass
-
 class SoMeta(type):
 	def __getattr__(cls, key):
 		return lambda *kwargs: cls.property(key, *kwargs)
