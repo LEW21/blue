@@ -17,6 +17,8 @@ class property(property):
 		return super(property, self).__set__(obj, value)
 
 class lazy(object):
+	__slots__ = ["load"]
+
 	def __init__(self, load):
 		self.load = load
 
@@ -79,6 +81,8 @@ class Object(object):
 				raise AttributeError("'{0}' object has no attribute '{1}'".format(self.__blue_path__, name))
 
 class SoMeta(type):
+	__slots__ = []
+
 	def __getattr__(cls, key):
 		return lambda *kwargs: cls.property(key, *kwargs)
 
@@ -98,6 +102,7 @@ def validate(self, value, constraints):
 
 class Real(object):
 	__metaclass__ = SoMeta
+	__slots__ = ["path", "data", "exists", "_existed", "_changed", "reals"]
 
 	@staticmethod
 	def property(name, type, default=None, doc=None, *constraints, **stdConstraints):
@@ -150,6 +155,7 @@ class Real(object):
 
 class Ideal(object):
 	__metaclass__ = SoMeta
+	__slots__ = ["path", "data"]
 
 	@staticmethod
 	def property(name, type, doc=None):

@@ -4,6 +4,8 @@ import koryto.blue.tree
 import weakref
 
 class Data(object):
+	__slots__ = ["root"]
+
 	def __init__(self, root):
 		self.root = root
 
@@ -31,17 +33,20 @@ class Data(object):
 		os.remove(path)
 
 class Ideals(Data):
+	__slots__ = []
+
 	def __setitem__(self, item, data):
 		raise AttributeError, "can't change ideals"
 
 class Reals(Data):
-	pass
+	__slots__ = []
 
 def Tree(path):
 	return koryto.blue.tree.load(path)
 
 def Metabase(type, configroot, idealsroot):
 	class Database(object):
+		__slots__ = ["reals", "tree"]
 		metatree = Tree(os.path.join(configroot, type))
 		ideals = Ideals(os.path.join(idealsroot, type))
 

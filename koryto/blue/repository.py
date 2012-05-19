@@ -4,6 +4,8 @@ from configparser import ConfigParser
 from database import load as loadDB, metabases
 
 class Directory(object):
+	__slots__ = ["path", "metabases"]
+
 	def __init__(self, path, metabases):
 		self.path = path
 		self.metabases = metabases
