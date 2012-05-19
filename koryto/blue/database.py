@@ -1,6 +1,7 @@
 import os
 import json
 import koryto.blue.tree
+import weakref
 
 class Data(object):
 	def __init__(self, root):
@@ -25,6 +26,10 @@ class Data(object):
 		with open(path, "w") as file:
 			json.dump(data, file)
 
+	def __delitem__(self, item):
+		path = os.path.join(self.root, *item.split(".")) + ".json"
+		os.remove(path)
+
 class Ideals(Data):
 	def __setitem__(self, item, data):
 		raise AttributeError, "can't change ideals"
@@ -42,7 +47,8 @@ def Metabase(type, configroot, idealsroot):
 
 		def __init__(self, path):
 			self.reals = Reals(path)
-			self.tree = self.metatree(self, "")
+			self.tree = self.metatree(None, self.ideals, self.reals, "")
+			self.tree.__blue_root_weakref__ = weakref.ref(self.tree)
 
 	return Database
 

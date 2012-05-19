@@ -1,5 +1,6 @@
 import koryto.blue.constraints
 from inspect import getargspec
+import weakref
 
 class property(property):
 	def __init__(self, fget=None, fset=None, fdel=None, fvalid=None, doc=None):
@@ -25,22 +26,28 @@ class lazy(object):
 		return value
 
 class Object(object):
-	def __init__(self, db, path):
-		self.__blue_db__ = db
+	def __init__(self, root, ideals, reals, path):
+		if root == None:
+			class A(object):
+				pass
+			root = A()
+		self.__blue_root_weakref__ = weakref.ref(root)
+		self.__blue_ideals__ = ideals
+		self.__blue_reals__  = reals
 		self.__blue_path__ = path
 		self.__blue_children__ = {}
 
-	@lazy
+	@property
 	def root(self):
-		return self.__blue_db__.tree
+		return self.__blue_root_weakref__()
 
 	@lazy
 	def real(self):
-		return Real(self.__blue_db__.reals, self.__blue_path__)
+		return Real(self.__blue_reals__, self.__blue_path__)
 
 	@lazy
 	def ideal(self):
-		return Ideal(self.__blue_db__.ideals, self.__blue_path__)
+		return Ideal(self.__blue_ideals__, self.__blue_path__)
 
 	def __getitem__(self, name):
 		try:
@@ -54,7 +61,12 @@ class Object(object):
 				except (KeyError, AttributeError):
 					raise KeyError
 
-			self.__blue_children__[name] = Item(self.__blue_db__, self.__blue_path__ + "." + name if self.__blue_path__ else name)
+			self.__blue_children__[name] = Item(
+				self.root,
+				self.__blue_ideals__,
+				self.__blue_reals__,
+				self.__blue_path__ + "." + name if self.__blue_path__ else name)
+
 			return self.__blue_children__[name]
 
 	def __getattr__(self, name):
@@ -114,8 +126,10 @@ class Real(object):
 		self.path = path
 		try:
 			self.data = reals[path]
+			self._existed = self.exists = True
 		except AttributeError:
 			self.data = {}
+			self._existed = self.exists = False
 
 	def __getitem__(self, name):
 		return self.data[name]
@@ -129,8 +143,10 @@ class Real(object):
 		del self.data[name]
 
 	def __del__(self):
-		if self._changed:
+		if self.exists and (self._changed or not self._existed):
 			self.reals[self.path] = self.data
+		if not self.exists and self._existed:
+			del self.reals[self.path]
 
 class Ideal(object):
 	__metaclass__ = SoMeta
