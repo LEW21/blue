@@ -31,6 +31,10 @@ class Object(object):
 		self.__blue_children__ = {}
 
 	@lazy
+	def root(self):
+		return self.__blue_db__.tree
+
+	@lazy
 	def real(self):
 		return Real(self.__blue_db__.reals, self.__blue_path__)
 

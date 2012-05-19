@@ -3,8 +3,6 @@ import local
 import json
 import koryto.blue.tree
 
-tree   = local.LocalProxy()
-
 class Data(object):
 	def __init__(self, root):
 		self.root = root
@@ -47,9 +45,6 @@ def Metabase(type, configroot, idealsroot):
 			self.reals = Reals(path)
 			self.tree = self.metatree(self, "")
 
-		def activate(self):
-			local.set(tree, self.tree)
-
 	return Database
 
 def metabases(types, configroot, idealsroot):
@@ -69,5 +64,4 @@ def load(path, metabases):
 		raise e
 
 	db = Database(path)
-	db.activate()
 	return db.tree
