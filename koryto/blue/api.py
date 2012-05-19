@@ -1,4 +1,3 @@
-from koryto.blue.database import ideals, reals
 import koryto.blue.constraints
 from inspect import getargspec
 
@@ -26,17 +25,18 @@ class lazy(object):
 		return value
 
 class Object(object):
-	def __init__(self, path):
+	def __init__(self, db, path):
+		self.__blue_db__ = db
 		self.__blue_path__ = path
 		self.__blue_children__ = {}
 
 	@lazy
 	def real(self):
-		return Real(self.__blue_path__)
+		return Real(self.__blue_db__.reals, self.__blue_path__)
 
 	@lazy
 	def ideal(self):
-		return Ideal(self.__blue_path__)
+		return Ideal(self.__blue_db__.ideals, self.__blue_path__)
 
 	def __getitem__(self, name):
 		try:
@@ -50,7 +50,7 @@ class Object(object):
 				except (KeyError, AttributeError):
 					raise KeyError
 
-			self.__blue_children__[name] = Item(self.__blue_path__ + "." + name if self.__blue_path__ else name)
+			self.__blue_children__[name] = Item(self.__blue_db__, self.__blue_path__ + "." + name if self.__blue_path__ else name)
 			return self.__blue_children__[name]
 
 	def __getattr__(self, name):
@@ -104,8 +104,9 @@ class Real(object):
 
 		return property(fget=getter, fset=setter, fdel=deleter, doc=doc)
 
-	def __init__(self, path):
+	def __init__(self, reals, path):
 		self._changed = False
+		self.reals = reals
 		self.path = path
 		try:
 			self.data = reals[path]
@@ -125,7 +126,7 @@ class Real(object):
 
 	def __del__(self):
 		if self._changed:
-			reals[self.path] = self.data
+			self.reals[self.path] = self.data
 
 class Ideal(object):
 	__metaclass__ = SoMeta
@@ -143,7 +144,7 @@ class Ideal(object):
 
 		return property(fget=getter, fset=setter, fdel=deleter, doc=doc)
 
-	def __init__(self, path):
+	def __init__(self, ideals, path):
 		self.path = path
 		self.data = ideals[path]
 
