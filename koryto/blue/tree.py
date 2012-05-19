@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+from koryto.blue.api import Object
 import os
 import sys
 
@@ -11,7 +12,7 @@ def importClass(path):
 	return getattr(sys.modules[moduleName], className)
 
 def buildClass(name, config = {}):
-	parents = [importClass("koryto.blue.api#Object")]
+	parents = [Object]
 
 	for opt in config:
 		if opt.startswith("mixin.") or opt == "base":
