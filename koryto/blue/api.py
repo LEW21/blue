@@ -57,6 +57,13 @@ class Object(object):
 	def ideal(self):
 		return Ideal(self.__blue_ideals__, self.__blue_path__)
 
+	@property
+	def now(self):
+		"""TODO"""
+
+	def queue(self, method, time):
+		"""TODO"""
+
 	def __getitem__(self, name):
 		try:
 			return self.__blue_children__[name]
@@ -79,11 +86,11 @@ class Object(object):
 
 	def __getattr__(self, name):
 		try:
-			return self[name]
-		except KeyError:
+			return getattr(super(Object, self), name)
+		except AttributeError:
 			try:
-				getattr(super(Object, self), name)
-			except AttributeError:
+				return self[name]
+			except KeyError:
 				raise AttributeError("'{0}' object has no attribute '{1}'".format(self.__blue_path__, name))
 
 class SoMeta(type):
