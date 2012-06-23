@@ -134,12 +134,14 @@ def validate(self, value, constraints):
 	for con in constraints:
 		args = getargspec(con).args
 
-		if not len(args):
+		if args[0] == "self" and len(args) == 2:
+			res = con(self, value)
+		elif args[0] == "self" and len(args) == 1:
+			res = con(self)
+		elif len(args) == 1:
+			res = con(value)
+		elif len(args) == 0:
 			res = con()
-		elif args[0] == "self":
-			res = lambda: con(self, value)
-		else:
-			res = lambda: con(self)
 
 		if not res:
 			raise ValueError
