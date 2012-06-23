@@ -30,7 +30,12 @@ class Data(object):
 
 	def __delitem__(self, item):
 		path = os.path.join(self.root, *item.split(".")) + ".json"
-		os.remove(path)
+		try:
+			os.remove(path)
+		except OSError as e:
+			if e.strerror == 'No such file or directory':
+				return
+			raise
 
 class Ideals(Data):
 	__slots__ = []
