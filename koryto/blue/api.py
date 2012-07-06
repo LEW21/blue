@@ -158,7 +158,7 @@ def Real(name, T, default=None, doc=None, *constraints, **stdConstraints):
 			return T(default)
 
 	def setter(self, value):
-		if not self.real:
+		if self.real is None:
 			raise AttributeError("Real does not exist.")
 
 		value = T(value)
@@ -166,7 +166,7 @@ def Real(name, T, default=None, doc=None, *constraints, **stdConstraints):
 		self.real[name] = value
 
 	def deleter(self):
-		if not self.real:
+		if self.real is None:
 			raise AttributeError("Real does not exist.")
 
 		del self.real[name]
