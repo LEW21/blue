@@ -154,7 +154,7 @@ def Real(name, T, default=None, doc=None, *constraints, **stdConstraints):
 	def getter(self):
 		try:
 			return T(self.real[name])
-		except TypeError, KeyError:
+		except (TypeError, KeyError, AttributeError):
 			return T(default)
 
 	def setter(self, value):
