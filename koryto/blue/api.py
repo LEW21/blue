@@ -147,9 +147,9 @@ def validate(self, value, constraints):
 			raise ValueError
 
 @objectify
-def Real(name, T, default=None, doc=None, *constraints, **stdConstraints):
-	for name in stdConstraints:
-		constraints += getattr(koryto.blue.constraints, name)(stdConstraints[name])
+def Real(name, T, default=None, *constraints, **stdConstraints):
+	for con in stdConstraints:
+		constraints += getattr(koryto.blue.constraints, con)(stdConstraints[con]),
 
 	def getter(self):
 		try:
@@ -171,4 +171,4 @@ def Real(name, T, default=None, doc=None, *constraints, **stdConstraints):
 
 		del self.real[name]
 
-	return property(fget=getter, fset=setter, fdel=deleter, doc=doc)
+	return property(fget=getter, fset=setter, fdel=deleter)
