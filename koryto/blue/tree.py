@@ -1,5 +1,6 @@
 from configparser import ConfigParser
 from koryto.blue.api import Object
+from koryto.blue import trigger
 import os
 import sys
 
@@ -21,7 +22,7 @@ def buildClass(name, config = {}):
 	cls = type(str(name), tuple(parents), {})
 	cls.__blue_meta_children__ = {}
 
-	return cls
+	return trigger.setIn(cls)
 
 def load(configdir):
 	conf = ConfigParser()
