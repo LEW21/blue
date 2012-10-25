@@ -15,7 +15,7 @@ class Data(object):
 			with open(path) as file:
 				return json.load(file)
 		except IOError:
-			raise AttributeError, "Missing file: " + path
+			raise AttributeError("Missing file: " + path)
 
 	def __setitem__(self, item, data):
 		path = os.path.join(self.root, *item.split(".")) + ".json"
@@ -41,7 +41,7 @@ class Ideals(Data):
 	__slots__ = []
 
 	def __setitem__(self, item, data):
-		raise AttributeError, "can't change ideals"
+		raise AttributeError("can't change ideals")
 
 class Reals(Data):
 	__slots__ = []

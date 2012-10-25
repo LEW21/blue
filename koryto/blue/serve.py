@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
 from ctypes import CDLL
-import gevent.socket as socket
-from gevent.server import StreamServer
 from jsonrmc import handle
 from argparse import ArgumentParser
 from koryto.blue.repository import load
 import sys
+import socket
 import fdsocket
 
 sd = CDLL("libsystemd-daemon.so")
@@ -15,7 +14,7 @@ sd.SD_LISTEN_FDS_START = 3
 def connection(socket, address):
 	print ('New connection from %s:%s' % (address[0], address[1]))
 
-	stream = socket.makefile()
+	stream = socket.makefile('rw')
 	for line in stream:
 		stream.write(handle(root, line) + '\n')
 		stream.flush()
@@ -41,5 +40,11 @@ if __name__ == '__main__':
 		print >> sys.stderr, "No file descriptors received."
 		exit(1)
 
-	server = StreamServer(socketfromfd(sd.SD_LISTEN_FDS_START), connection)
-	server.serve_forever()
+	s = socketfromfd(sd.SD_LISTEN_FDS_START);
+	while True:
+		conn, address = s.accept()
+		try:
+			with conn:
+				connection(conn, address)
+		except:
+			pass

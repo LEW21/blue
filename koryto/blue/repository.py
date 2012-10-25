@@ -1,7 +1,7 @@
 import os
 import sys
 from configparser import ConfigParser
-from database import load as loadDB, metabases
+from koryto.blue.database import load as loadDB, metabases
 
 class Directory(object):
 	__slots__ = ["path", "metabases"]
