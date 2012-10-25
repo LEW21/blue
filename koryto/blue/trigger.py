@@ -7,10 +7,15 @@ class Trigger(object):
 	def __init__(self):
 		self.pre = {}
 		self.post = {}
+		
+		#Now create methods used for setting triggers
 		self.after = self._settr(self.post)
 		self.before = self._settr(self.pre)
-		
+	
+	# Closure function to create trigger setting functions
 	def _settr(self, target):
+		# Decorating with @dec(arg) is equal to: func = dec(arg)(func), 
+		# Get first set of arguments - trigger target and optional function execution parameters
 		def setTrigger(self, rawPath, *t_args):
 			path = rawPath.split('.')
 			
@@ -20,18 +25,24 @@ class Trigger(object):
 			
 			name = path[2]
 			path = path[0]+'.'+path[1]
-
+			
+			#Get dictionary for given trigger, if one not exists create it
 			try:
 				triggers = target[path]
-			except:
+			except KeyError:
 				triggers = target[path] = {}
+			
 			try:
-				triggers = triggers[name]
-			except:
+				trigger = triggers[name]
+			except KeyError:
 				trigger = triggers[name] = {}
+			
+			# Get second parameter, the function
 			def wrapper(f):
-				trigger[f] = t_args
-				def wrapped(*args):
+				trigger[f] = t_args				# Add function with arguments to the list of triggers
+				
+				# Actual decorator, leaves funcion as it was
+				def wrapped(*args):		
 					return f(*args)
 				
 				return wrapped
@@ -49,6 +60,7 @@ class Trigger(object):
 				name = fun.__name__
 				err = None
 				
+				# Get function specific dictionary
 				try:
 					pre = self.pre[path][name]
 				except:
@@ -57,17 +69,19 @@ class Trigger(object):
 					post = self.post[path][name]
 				except:
 					post = {}
-
+				
+				# Execute pre-triggers
 				for func in pre:
 					try:
 						func(*pre[func])
 					except Exception as e:
 						err = e
-				if err:
-					raise err
+				if err:							# If any exceptions was encountered, 
+					raise err					# raise the last one. Not sure how this should be done better.
 				
 				tmp = fun(obj, *args)
 				
+				# Execute post-triggers
 				for func, arg in post:
 					try:
 						func(*pre[func])
@@ -79,6 +93,7 @@ class Trigger(object):
 				return tmp
 			return checkTrigs
 		
+		# Every method in decorated class gets decorated by allowTrigger
 		for name in dir(cls):
 			attr = getattr(cls, name)
 			# Can it be done better?
