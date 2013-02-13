@@ -82,9 +82,9 @@ class Trigger(object):
 				tmp = fun(obj, *args)
 				
 				# Execute post-triggers
-				for func, arg in post:
+				for func in post:
 					try:
-						func(*pre[func])
+						func(*post[func])
 					except Exception as e:
 						err = e
 				if err:
