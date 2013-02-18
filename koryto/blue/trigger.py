@@ -16,11 +16,11 @@ class Trigger(object):
 	def _settr(self, target):
 		# Decorating with @dec(arg) is equal to: func = dec(arg)(func), 
 		# Get first set of arguments - trigger target and optional function execution parameters
-		def setTrigger(self, rawPath, *t_args):
+		def setTrigger(rawPath, *t_args):
 			path = rawPath.split('.')
 			
 			# TODO correct, enhance
-			if not len(path) == 3:
+			if not len(path) == 3: 
 				raise Exception('Incorrect path: {var}'.format(var = rawPath))
 			
 			name = path[2]
